@@ -74,9 +74,24 @@ public class CoursesService {
 
     public void updateCourse(CoursesDTO_In CoursesDTO_In){
         Courses courses = coursesRepository.findCoursesById(CoursesDTO_In.getId());
-        if (courses == null) throw new ApiException("Error: Course not found");
+        Teacher teacher = new Teacher();
+        Student student = new Student();
+        if (CoursesDTO_In.getTeacher_id() != null){
+            teacher = teacherRepository.findTeacherById(CoursesDTO_In.getTeacher_id());
+            if (teacher == null) throw new ApiException("Error: Teacher not found");
+            courses.setTeacher(teacher);
+        }
         courses.setName(CoursesDTO_In.getName());
-        coursesRepository.save(courses);
+        courses =coursesRepository.save(courses);
+
+        if (CoursesDTO_In.getStudent_id() != null){
+            student = studentRepository.findStudentById(CoursesDTO_In.getStudent_id());
+            if (student == null) throw new ApiException("Error: Student not found");
+            courses.getStudents().add(student);
+            coursesRepository.save(courses);
+            student.getCourses().add(courses);
+            studentRepository.save(student);
+        }
     }
 
     public void deleteCourse(Integer id){

@@ -41,7 +41,12 @@ public class TeacherController {
         teacherService.updateAddress(teacherDTO_In);
         return ResponseEntity.ok(new ApiResponse("Teacher and address updated successfully!"));
     }
-
+    @PostMapping("/assign-teacher-to-course/{teacher_id}/{course_id}")
+    public ResponseEntity<ApiResponse> assignTeacherToCourses(
+            @PathVariable Integer teacher_id, @PathVariable Integer course_id) {
+        teacherService.assignTeacherToCourses(teacher_id, course_id);
+        return ResponseEntity.ok(new ApiResponse("Teacher assigned to course successfully!"));
+    }
 
 
     @DeleteMapping("/delete/{id}")

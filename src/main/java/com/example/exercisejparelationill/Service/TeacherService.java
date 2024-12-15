@@ -4,8 +4,10 @@ import com.example.exercisejparelationill.ApiResponse.ApiException;
 import com.example.exercisejparelationill.DTO.TeacherDTO_Out;
 import com.example.exercisejparelationill.DTO.TeacherDTO_In;
 import com.example.exercisejparelationill.Model.Address;
+import com.example.exercisejparelationill.Model.Courses;
 import com.example.exercisejparelationill.Model.Teacher;
 import com.example.exercisejparelationill.Repository.AddressRepository;
+import com.example.exercisejparelationill.Repository.CoursesRepository;
 import com.example.exercisejparelationill.Repository.TeacherRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ public class TeacherService {
 
     private final TeacherRepository teacherRepository;
     private final AddressRepository addressRepository;
+    private final CoursesRepository coursesRepository;
 
     public List<TeacherDTO_Out> getAllTeachers(){
         List<Teacher> teachers = teacherRepository.findAll();
@@ -53,6 +56,20 @@ public class TeacherService {
 
     }
 
+    public void assignTeacherToCourses(Integer teacher_id, Integer course_id){
+        Teacher teacher = teacherRepository.findTeacherById(teacher_id);
+        Courses courses = coursesRepository.findCoursesById(course_id);
+
+        if (teacher == null) throw new ApiException("Error: Teacher not found");
+        if (courses == null) throw new ApiException("Error: Course not found");
+
+        courses.setTeacher(teacher);
+        coursesRepository.save(courses);
+        teacher.getCourses().add(courses);
+        teacherRepository.save(teacher);
+
+    }
+
     public void updateAddress(TeacherDTO_In TeacherDTO_In){
         Teacher teacher = teacherRepository.findTeacherById(TeacherDTO_In.getId());
         if (teacher == null) throw new ApiException("Error: Teacher not found");
@@ -75,6 +92,9 @@ public class TeacherService {
     public void deleteTeacher(Integer id){
         Teacher teacher = teacherRepository.findTeacherById(id);
         if (teacher == null) throw new ApiException("Error: Teacher not found");
+        teacher.getCourses().clear();
+        teacher.setAddress(null);
+        teacherRepository.save(teacher);
         teacherRepository.delete(teacher);
     }
 }
